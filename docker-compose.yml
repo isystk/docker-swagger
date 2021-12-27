@@ -1,27 +1,35 @@
-version: '3.1'
+version: '3'
 
 services:
-  swagger-editor:
+
+  # Swaggerをブラウザで編集するためのコンテナ：Swagger-Editor版
+  sample-swagger-editor:
     image: swaggerapi/swagger-editor
-    container_name: "swagger-editor"
-    ports:
-      - "8001:8080"
-
-  swagger-ui:
-    image: swaggerapi/swagger-ui
-    container_name: "swagger-ui"
-    ports:
-      - "8002:8080"
     volumes:
-      - ./api/openapi.yaml:/openapi.yaml
+      - ./swagger:/tmp
     environment:
-      SWAGGER_JSON: /openapi.yaml
-
-  swagger-api:
-    image: stoplight/prism:3
-    container_name: "swagger-api"
+      SWAGGER_JSON: "/tmp/openapi-doc.yaml"
     ports:
-      - "8003:4010"
-    command: mock -h 0.0.0.0 /openapi.yaml
+      - '8001:8080'
+
+  # Swaggerをブラウザでプレビューするためのコンテナ：Swagger-UI版
+  sample-swagger-ui:
+    image: swaggerapi/swagger-ui
     volumes:
-      - ./api/openapi.yaml:/openapi.yaml
+      - ./swagger:/tmp
+    environment:
+      SWAGGER_JSON: "/tmp/openapi-doc.yaml"
+    ports:
+      - '8002:8080'
+
+  # Swaggerをブラウザでプレビューするためのコンテナ：Redoc版
+  sample-redoc:
+    image: redocly/redoc
+    volumes:
+      - ./swagger:/usr/share/nginx/html/swagger
+    environment:
+      SPEC_URL: ./swagger/openapi-doc.yaml
+      PORT: 8080
+    ports:
+      - '8003:8080'
+
